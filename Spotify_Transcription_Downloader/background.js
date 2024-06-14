@@ -1,6 +1,7 @@
 // background.js
 let requestsMap = new Map();
 const savedIds = [];
+let currentTabId = null;
 
 const urls = [
     "https://open.spotify.com/*",
@@ -37,6 +38,15 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     { urls },
     ["requestHeaders"]
 );
+
+async function sendMessageToActiveTab(message) {
+    const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+    });
+    const response = await chrome.tabs.sendMessage(tab.id, message);
+    // TODO: Do something with the response.
+}
 
 // background.js
 chrome.webRequest.onCompleted.addListener(
@@ -84,9 +94,32 @@ chrome.webRequest.onCompleted.addListener(
                             }
                         );
                         savedIds.push(request.episodeId);
-                        chrome.runtime.sendMessage({
-                            message: "jsonSaved",
-                        });
+                        return true;
+                        // chrome.tabs.sendMessage(
+                        //     0,
+                        //      "jsonSaved",
+                        // )
+                        // chrome.runtime.sendMessage({
+                        //     message: "jsonSaved",
+                        // });
+                    })
+                    .then((jsonSaved) => {
+                        // if (jsonSaved) {
+                        //     sendMessageToActiveTab("jsonSaved");
+                        // }
+                        let queryOptions = {
+                            active: true,
+                            lastFocusedWindow: true,
+                        };
+                        // chrome.tabs.query(queryOptions, ([tab]) => {
+                        //     if (chrome.runtime.lastError)
+                        //         console.error(chrome.runtime.lastError);
+                        //     // `tab` will either be a `tabs.Tab` instance or `undefined`.
+                        //     // callback(tab);
+                        //     // console.log("tab", tab);
+                        //     chrome.tabs.sendMessage(tab.id, {message: "jsonSaved"});
+                        // });
+                        chrome.tabs.sendMessage(currentTabId, {message: "jsonSaved"});
                     })
                     .catch((error) => {
                         console.error("Error fetching JSON response:", error);
@@ -99,7 +132,7 @@ chrome.webRequest.onCompleted.addListener(
 );
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "saveJson") {
+    if (request.action === "saveToFile") {
         const { episodeId } = request.data;
         chrome.storage.local.get([episodeId], (result) => {
             if (result[episodeId]) {
@@ -135,6 +168,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    currentTabId = tabId;
     chrome.tabs.sendMessage(tabId, {
         message: "urlChanged",
         url: changeInfo.url,

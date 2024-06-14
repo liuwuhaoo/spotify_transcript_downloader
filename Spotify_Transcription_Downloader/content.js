@@ -26,7 +26,7 @@ button.addEventListener("click", () => {
     const episodeId = getEpisodeIdFromPageURL();
     if (episodeId) {
         chrome.runtime.sendMessage({
-            action: "saveJson",
+            action: "saveToFile",
             data: {episodeId },
         });
     }
@@ -52,4 +52,3 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         genButton();
     }
 });
-
