@@ -8,4 +8,4 @@ It includes a Chrome extension to download Spotify transcripts, and a script to 
 
 With LyricsX you can see a live transcript while playing podcasts on Spotify.
 
-![alt text](image.png)
+![alt text](live_transcript.png)
