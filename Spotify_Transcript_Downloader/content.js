@@ -1,4 +1,3 @@
-// content.js
 function getEpisodeIdFromPageURL() {
     const url = window.location.href;
     if (!url.includes("open.spotify.com/episode")) {

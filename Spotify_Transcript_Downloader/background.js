@@ -23,7 +23,6 @@ function getEpisodeId(url) {
     }
 }
 
-// Intercept and store request headers
 chrome.webRequest.onBeforeSendHeaders.addListener(
     function (details) {
         const episodeId = getEpisodeId(details.url);
@@ -39,16 +38,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     ["requestHeaders"]
 );
 
-async function sendMessageToActiveTab(message) {
-    const [tab] = await chrome.tabs.query({
-        active: true,
-        lastFocusedWindow: true,
-    });
-    const response = await chrome.tabs.sendMessage(tab.id, message);
-    // TODO: Do something with the response.
-}
-
-// background.js
 chrome.webRequest.onCompleted.addListener(
     function (details) {
         const episodeId = getEpisodeId(details.url);
@@ -61,7 +50,6 @@ chrome.webRequest.onCompleted.addListener(
         }
         console.log(details.url);
         if (details.responseHeaders) {
-            // console.log(details.url);
             const contentTypeHeader = details.responseHeaders.find(
                 (header) => header.name.toLowerCase() === "content-type"
             );
@@ -94,31 +82,6 @@ chrome.webRequest.onCompleted.addListener(
                             }
                         );
                         savedIds.push(request.episodeId);
-                        return true;
-                        // chrome.tabs.sendMessage(
-                        //     0,
-                        //      "jsonSaved",
-                        // )
-                        // chrome.runtime.sendMessage({
-                        //     message: "jsonSaved",
-                        // });
-                    })
-                    .then((jsonSaved) => {
-                        // if (jsonSaved) {
-                        //     sendMessageToActiveTab("jsonSaved");
-                        // }
-                        let queryOptions = {
-                            active: true,
-                            lastFocusedWindow: true,
-                        };
-                        // chrome.tabs.query(queryOptions, ([tab]) => {
-                        //     if (chrome.runtime.lastError)
-                        //         console.error(chrome.runtime.lastError);
-                        //     // `tab` will either be a `tabs.Tab` instance or `undefined`.
-                        //     // callback(tab);
-                        //     // console.log("tab", tab);
-                        //     chrome.tabs.sendMessage(tab.id, {message: "jsonSaved"});
-                        // });
                         chrome.tabs.sendMessage(currentTabId, {message: "jsonSaved"});
                     })
                     .catch((error) => {

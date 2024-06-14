@@ -1,0 +1,31 @@
+{
+  "name": "Spotify Podcast Transcrip Downloader",
+  "description": "Download Spotify transcript, if available.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "https://open.spotify.com/*",
+    "https://episode-transcripts.spotifycdn.com/*",
+    "https://spclient.wg.spotify.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://open.spotify.com/*",
+        "https://episode-transcripts.spotifycdn.com/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "tabs",
+    "storage",
+    "downloads",
+    "webRequest"
+  ]
+}
